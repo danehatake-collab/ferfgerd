@@ -1,0 +1,2616 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#e8f4fc">
+    <meta name="format-detection" content="telephone=no">
+    <title>Reels</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* === iPhone 16 Pro Max Safe Areas === */
+            /* Dynamic Island: ~59pt from top */
+            /* Home Indicator: ~34pt from bottom */
+            --safe-top: env(safe-area-inset-top, 59px);
+            --safe-bottom: env(safe-area-inset-bottom, 34px);
+            --safe-left: env(safe-area-inset-left, 0px);
+            --safe-right: env(safe-area-inset-right, 0px);
+            
+            /* === Sky Blue Theme === */
+            --bg: #e8f4fc;
+            --bg-gradient: linear-gradient(180deg, #e8f4fc 0%, #d4ebf7 100%);
+            --bg-elevated: #ffffff;
+            --bg-secondary: #f0f7fb;
+            --bg-tertiary: #e0eef6;
+            
+            /* Glass effects */
+            --glass: rgba(255,255,255,0.75);
+            --glass-border: rgba(255,255,255,0.9);
+            --glass-shadow: rgba(100,150,180,0.1);
+            --glass-hover: rgba(255,255,255,0.85);
+            
+            /* Text hierarchy */
+            --text-primary: #1a3a4a;
+            --text-secondary: rgba(26,58,74,0.7);
+            --text-tertiary: rgba(26,58,74,0.5);
+            --text-quaternary: rgba(26,58,74,0.35);
+            
+            /* Accent colors */
+            --accent: #2196F3;
+            --accent-light: #64B5F6;
+            --accent-dark: #1976D2;
+            --accent-soft: rgba(33,150,243,0.12);
+            --accent-glow: rgba(33,150,243,0.25);
+            
+            /* Secondary colors */
+            --orange: #ff9500;
+            --orange-soft: rgba(255,149,0,0.12);
+            --green: #34c759;
+            --green-soft: rgba(52,199,89,0.12);
+            --purple: #af52de;
+            --purple-soft: rgba(175,82,222,0.12);
+            --yellow: #ffcc00;
+            --yellow-soft: rgba(255,204,0,0.15);
+            --red: #ff3b30;
+            --red-soft: rgba(255,59,48,0.12);
+            
+            /* === iPhone 16 Pro Max Optimized Sizing === */
+            /* Tab bar height optimized for home indicator */
+            --tab-h: 88px;
+            
+            /* Touch targets - Apple HIG minimum 44pt, we use 48-52 for comfort */
+            --touch-min: 48px;
+            --touch-comfortable: 52px;
+            
+            /* Border radius - larger for bigger screen */
+            --radius-xs: 10px;
+            --radius-sm: 14px;
+            --radius-md: 18px;
+            --radius-lg: 24px;
+            --radius-xl: 32px;
+            --radius-full: 100px;
+            
+            /* Spacing scale - generous for large display */
+            --space-xs: 6px;
+            --space-sm: 10px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+            
+            /* Typography - optimized for 6.9" display */
+            --font-xs: 12px;
+            --font-sm: 14px;
+            --font-base: 16px;
+            --font-lg: 18px;
+            --font-xl: 22px;
+            --font-2xl: 28px;
+            --font-3xl: 36px;
+            
+            /* ProMotion 120Hz smooth animations */
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+            --ease-out: cubic-bezier(0, 0, 0.2, 1);
+            --duration-fast: 0.15s;
+            --duration-normal: 0.25s;
+            --duration-slow: 0.4s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            user-select: none;
+            /* Prevent rubber-band scrolling on edges */
+            overscroll-behavior: contain;
+        }
+
+        html {
+            height: 100%;
+            /* Prevent iOS text size adjustment */
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            height: 100%;
+            overflow: hidden;
+            background: var(--bg);
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter', sans-serif;
+            color: var(--text-primary);
+            font-feature-settings: 'kern' 1, 'liga' 1;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            /* Prevent pull-to-refresh */
+            overscroll-behavior-y: none;
+        }
+
+        /* ========== APP SHELL ========== */
+        .app {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding-top: var(--safe-top);
+            padding-bottom: calc(var(--tab-h) + var(--safe-bottom));
+            padding-left: var(--safe-left);
+            padding-right: var(--safe-right);
+            background: var(--bg-gradient);
+        }
+
+        .page {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            /* Smooth scroll for ProMotion */
+            scroll-behavior: smooth;
+        }
+
+        .page.active { display: block; }
+        .page::-webkit-scrollbar { display: none; }
+
+        .wrap {
+            padding: 0 var(--space-lg) 140px;
+            max-width: 560px;
+            margin: 0 auto;
+        }
+
+        /* ========== HEADER - Dynamic Island aware ========== */
+        .hdr {
+            padding: var(--space-md) var(--space-lg) var(--space-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            /* Extra top padding for Dynamic Island breathing room */
+            padding-top: var(--space-lg);
+        }
+
+        .hdr h1 {
+            font-size: var(--font-3xl);
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: var(--text-primary);
+        }
+
+        .hdr-actions {
+            display: flex;
+            gap: var(--space-sm);
+        }
+
+        .hdr-btn {
+            width: var(--touch-comfortable);
+            height: var(--touch-comfortable);
+            background: var(--bg-elevated);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 16px var(--glass-shadow);
+            transition: transform var(--duration-fast) var(--ease-spring),
+                        box-shadow var(--duration-fast) var(--ease-smooth);
+        }
+
+        .hdr-btn:active {
+            transform: scale(0.9);
+            box-shadow: 0 1px 8px var(--glass-shadow);
+        }
+
+        /* ========== STATS ROW ========== */
+        .stats {
+            display: flex;
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+
+        .stat {
+            flex: 1;
+            background: var(--bg-elevated);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg) var(--space-md);
+            text-align: center;
+            box-shadow: 0 4px 24px var(--glass-shadow);
+            position: relative;
+            overflow: hidden;
+            /* Subtle press effect */
+            transition: transform var(--duration-fast) var(--ease-spring);
+        }
+
+        .stat:active {
+            transform: scale(0.97);
+        }
+
+        .stat::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        }
+
+        .stat:nth-child(1)::before { background: var(--accent); }
+        .stat:nth-child(2)::before { background: var(--green); }
+        .stat:nth-child(3)::before { background: var(--purple); }
+
+        .stat-val {
+            font-size: var(--font-3xl);
+            font-weight: 800;
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+
+        .stat-val.blue { color: var(--accent); }
+        .stat-val.green { color: var(--green); }
+        .stat-val.purple { color: var(--purple); }
+
+        .stat-lbl {
+            font-size: var(--font-xs);
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            margin-top: var(--space-xs);
+        }
+
+        /* ========== ADD BUTTON - Large touch target ========== */
+        .add-btn {
+            width: 100%;
+            min-height: 60px;
+            padding: var(--space-lg) var(--space-xl);
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            border: none;
+            border-radius: var(--radius-xl);
+            font-size: var(--font-lg);
+            font-weight: 700;
+            color: #fff;
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-xl);
+            box-shadow: 
+                0 8px 32px var(--accent-glow),
+                inset 0 1px 0 rgba(255,255,255,0.3);
+            transition: transform var(--duration-fast) var(--ease-spring),
+                        box-shadow var(--duration-fast) var(--ease-smooth);
+        }
+
+        .add-btn:active {
+            transform: scale(0.97);
+            box-shadow: 0 4px 16px var(--accent-glow);
+        }
+
+        .add-btn span { font-size: 24px; }
+
+        /* ========== SECTION HEADER ========== */
+        .sec-hdr {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-md);
+        }
+
+        .sec-title {
+            font-size: var(--font-xl);
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: var(--text-primary);
+        }
+
+        .sec-btn {
+            font-size: var(--font-base);
+            font-weight: 600;
+            color: var(--accent);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: var(--space-sm) 0;
+            /* Minimum touch target */
+            min-height: var(--touch-min);
+            display: flex;
+            align-items: center;
+        }
+
+        /* ========== FILTERS - Horizontal scroll optimized ========== */
+        .filters-section {
+            margin-bottom: var(--space-lg);
+        }
+
+        .filters-row {
+            display: flex;
+            gap: var(--space-sm);
+            overflow-x: auto;
+            padding-bottom: var(--space-sm);
+            -webkit-overflow-scrolling: touch;
+            /* Hide scrollbar but keep functionality */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            /* Snap to items */
+            scroll-snap-type: x proximity;
+        }
+
+        .filters-row::-webkit-scrollbar { display: none; }
+
+        .filter-chip {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            padding: var(--space-md) var(--space-lg);
+            min-height: var(--touch-min);
+            background: var(--bg-elevated);
+            border: none;
+            border-radius: var(--radius-full);
+            font-size: var(--font-sm);
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-family: inherit;
+            cursor: pointer;
+            white-space: nowrap;
+            box-shadow: 0 2px 12px var(--glass-shadow);
+            transition: all var(--duration-fast) var(--ease-spring);
+            /* Snap alignment */
+            scroll-snap-align: start;
+        }
+
+        .filter-chip:active {
+            transform: scale(0.95);
+        }
+
+        .filter-chip.active {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .filter-chip .icon { font-size: 16px; }
+
+        /* View Toggle */
+        .view-toggle {
+            display: flex;
+            background: var(--bg-elevated);
+            border-radius: var(--radius-md);
+            padding: 5px;
+            margin-bottom: var(--space-md);
+            box-shadow: 0 2px 12px var(--glass-shadow);
+        }
+
+        .view-btn {
+            flex: 1;
+            padding: var(--space-md) var(--space-lg);
+            min-height: var(--touch-min);
+            background: none;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-sm);
+            font-weight: 600;
+            color: var(--text-tertiary);
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-xs);
+            transition: all var(--duration-fast) var(--ease-smooth);
+        }
+
+        .view-btn.active {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .view-btn:active { transform: scale(0.96); }
+
+        /* ========== CARDS ========== */
+        .cards {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+
+        .card {
+            background: var(--bg-elevated);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: 0 4px 28px var(--glass-shadow);
+            transition: transform var(--duration-fast) var(--ease-spring);
+        }
+
+        .card:active {
+            transform: scale(0.985);
+        }
+
+        /* Card Header */
+        .card-header {
+            padding: var(--space-md) var(--space-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--bg-tertiary);
+            gap: var(--space-sm);
+        }
+
+        .card-meta {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .card-date {
+            font-size: var(--font-sm);
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        .card-format {
+            font-size: 11px;
+            font-weight: 700;
+            padding: var(--space-xs) var(--space-md);
+            background: var(--accent-soft);
+            border-radius: var(--radius-full);
+            color: var(--accent);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+        }
+
+        /* Favorite Button - Comfortable touch target */
+        .fav-btn {
+            padding: var(--space-sm) var(--space-md);
+            min-height: var(--touch-min);
+            min-width: var(--touch-min);
+            background: var(--bg-secondary);
+            border: none;
+            border-radius: var(--radius-full);
+            font-size: var(--font-sm);
+            font-weight: 600;
+            color: var(--text-tertiary);
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            transition: all var(--duration-fast) var(--ease-spring);
+            flex-shrink: 0;
+        }
+
+        .fav-btn:active { transform: scale(0.92); }
+
+        .fav-btn.on {
+            background: var(--yellow-soft);
+            color: #e6a800;
+        }
+
+        .fav-btn .star { font-size: 16px; }
+
+        /* Card Body */
+        .card-body { padding: var(--space-lg); }
+
+        .card-hook {
+            font-size: var(--font-lg);
+            font-weight: 700;
+            line-height: 1.45;
+            margin-bottom: var(--space-md);
+            color: var(--text-primary);
+        }
+
+        .card-insight {
+            font-size: var(--font-sm);
+            line-height: 1.55;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-md);
+            padding: var(--space-md);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+        }
+
+        /* Card Stats */
+        .card-stats {
+            display: flex;
+            gap: var(--space-xl);
+            margin-bottom: var(--space-lg);
+        }
+
+        .card-stat {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+
+        .card-stat-icon {
+            font-size: 16px;
+            opacity: 0.7;
+        }
+
+        .card-stat-val {
+            font-size: var(--font-base);
+            font-weight: 700;
+        }
+
+        .card-stat-val.blue { color: var(--accent); }
+        .card-stat-val.purple { color: var(--purple); }
+        .card-stat-val.green { color: var(--green); }
+
+        /* Card Actions - Large touch targets */
+        .card-actions {
+            display: flex;
+            gap: var(--space-sm);
+        }
+
+        .card-btn {
+            flex: 1;
+            padding: var(--space-md);
+            min-height: var(--touch-comfortable);
+            background: var(--bg-secondary);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: var(--font-sm);
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-xs);
+            transition: all var(--duration-fast) var(--ease-spring);
+        }
+
+        .card-btn:active { transform: scale(0.95); }
+        
+        .card-btn.primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .card-btn.danger { color: var(--red); }
+
+        /* ========== TABLE VIEW - Mobile Optimized ========== */
+        .table-container {
+            display: none;
+            position: relative;
+            overflow: hidden;
+            background: var(--bg-elevated);
+            border-radius: var(--radius-xl);
+            box-shadow: 0 4px 28px var(--glass-shadow);
+        }
+
+        .table-container.active { display: block; }
+        .cards.hidden { display: none; }
+
+        /* Scrollable wrapper with scroll indicators */
+        .table-scroll-wrapper {
+            overflow-x: auto;
+            overflow-y: visible;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+            /* Hide scrollbar but keep functionality */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .table-scroll-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Scroll indicator */
+        .table-scroll-indicator {
+            position: absolute;
+            top: 50%;
+            right: var(--space-md);
+            transform: translateY(-50%);
+            background: var(--accent);
+            color: #fff;
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-full);
+            font-size: var(--font-xs);
+            font-weight: 700;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity var(--duration-normal) var(--ease-smooth);
+            z-index: 10;
+        }
+
+        .table-scroll-indicator.visible {
+            opacity: 1;
+        }
+
+        .data-table {
+            width: 100%;
+            min-width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: var(--font-sm);
+        }
+
+        /* Freeze first column */
+        .data-table th:first-child,
+        .data-table td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 2;
+            background: var(--bg-elevated);
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+        }
+
+        .data-table th:first-child {
+            z-index: 3;
+            background: var(--bg-secondary);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: var(--space-lg) var(--space-md);
+            text-align: left;
+            border-bottom: 1px solid var(--bg-tertiary);
+            white-space: nowrap;
+        }
+
+        /* Improved header styling */
+        .data-table th {
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            background: var(--bg-secondary);
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            padding: var(--space-lg) var(--space-md);
+            border-bottom: 2px solid var(--bg-tertiary);
+        }
+
+        .data-table th.sortable {
+            cursor: pointer;
+            transition: all var(--duration-fast);
+            user-select: none;
+            position: relative;
+        }
+
+        .data-table th.sortable:active {
+            color: var(--accent);
+            transform: scale(0.98);
+        }
+
+        .data-table th.sorted {
+            color: var(--accent);
+        }
+
+        .data-table th.sorted::after {
+            content: '▼';
+            margin-left: 4px;
+            font-size: 8px;
+        }
+
+        /* Improved row styling */
+        .data-table tbody tr {
+            transition: all var(--duration-fast);
+            cursor: pointer;
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        .data-table tbody tr:active {
+            background: var(--accent-soft);
+            transform: scale(0.995);
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Alternating row colors for better readability */
+        .data-table tbody tr:nth-child(even) {
+            background: rgba(0,0,0,0.01);
+        }
+
+        .table-hook {
+            font-weight: 600;
+            color: var(--text-primary);
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+        }
+
+        .table-format {
+            font-size: 10px;
+            padding: 6px 12px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            border-radius: var(--radius-full);
+            display: inline-block;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .table-stat {
+            font-weight: 800;
+            font-size: var(--font-base);
+        }
+
+        .table-stat.blue { color: var(--accent); }
+        .table-stat.purple { color: var(--purple); }
+        .table-stat.green { color: var(--green); }
+
+        .table-fav {
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: var(--space-xs);
+            justify-content: flex-end;
+        }
+
+        .table-action-btn {
+            width: 44px;
+            height: 44px;
+            background: var(--bg-secondary);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--duration-fast) var(--ease-spring);
+            flex-shrink: 0;
+        }
+
+        .table-action-btn:active {
+            transform: scale(0.88);
+            background: var(--accent-soft);
+        }
+
+        .table-action-btn.danger:active {
+            background: var(--red-soft);
+            color: var(--red);
+        }
+
+        /* ========== EMPTY STATE ========== */
+        .empty {
+            padding: var(--space-2xl) var(--space-lg);
+            text-align: center;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: var(--space-md);
+            opacity: 0.5;
+        }
+
+        .empty-text {
+            font-size: var(--font-lg);
+            font-weight: 700;
+            color: var(--text-tertiary);
+        }
+
+        .empty-sub {
+            font-size: var(--font-sm);
+            color: var(--text-quaternary);
+            margin-top: var(--space-xs);
+        }
+
+        /* ========== ANALYTICS PAGE ========== */
+        .page-hdr {
+            padding: var(--space-md) 0 var(--space-xl);
+            text-align: center;
+        }
+
+        .page-hdr h1 {
+            font-size: var(--font-2xl);
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: var(--space-xs);
+            color: var(--text-primary);
+        }
+
+        .page-hdr p {
+            font-size: var(--font-base);
+            color: var(--text-tertiary);
+        }
+
+        .a-cards {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+
+        .a-card {
+            background: var(--bg-elevated);
+            border-radius: var(--radius-xl);
+            padding: var(--space-lg);
+            box-shadow: 0 4px 28px var(--glass-shadow);
+        }
+
+        .a-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+        }
+
+        .a-title {
+            font-size: var(--font-base);
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        .a-val {
+            font-size: var(--font-xl);
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        /* Chart */
+        .chart {
+            display: flex;
+            align-items: flex-end;
+            gap: var(--space-sm);
+            height: 130px;
+        }
+
+        .chart-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .chart-bar-w {
+            width: 100%;
+            height: 100px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .chart-bar {
+            width: 100%;
+            max-width: 36px;
+            background: linear-gradient(180deg, var(--accent) 0%, var(--accent-soft) 100%);
+            border-radius: 8px 8px 0 0;
+            min-height: 4px;
+            transition: height var(--duration-slow) var(--ease-out);
+        }
+
+        .chart-lbl {
+            font-size: var(--font-xs);
+            font-weight: 700;
+            color: var(--text-tertiary);
+        }
+
+        /* Averages Grid */
+        .avg-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-md);
+        }
+
+        .avg-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg) var(--space-md);
+            text-align: center;
+        }
+
+        .avg-icon {
+            font-size: 26px;
+            margin-bottom: var(--space-sm);
+        }
+
+        .avg-val {
+            font-size: var(--font-xl);
+            font-weight: 800;
+            margin-bottom: var(--space-xs);
+        }
+
+        .avg-val.blue { color: var(--accent); }
+        .avg-val.purple { color: var(--purple); }
+        .avg-val.green { color: var(--green); }
+
+        .avg-lbl {
+            font-size: 10px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* Formats List */
+        .fmt-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+
+        .fmt-row {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .fmt-icon {
+            width: var(--touch-comfortable);
+            height: var(--touch-comfortable);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .fmt-info { flex: 1; min-width: 0; }
+
+        .fmt-name {
+            font-size: var(--font-sm);
+            font-weight: 700;
+            margin-bottom: var(--space-sm);
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .fmt-bar {
+            height: 10px;
+            background: var(--bg-tertiary);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .fmt-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+            border-radius: 5px;
+            transition: width var(--duration-slow) var(--ease-out);
+        }
+
+        .fmt-cnt {
+            font-size: var(--font-lg);
+            font-weight: 800;
+            color: var(--accent);
+            min-width: 40px;
+            text-align: right;
+        }
+
+        /* Top List */
+        .top-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .top-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-md);
+            min-height: 64px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all var(--duration-fast) var(--ease-spring);
+        }
+
+        .top-item:active { transform: scale(0.98); }
+
+        .top-rank {
+            width: 38px;
+            height: 38px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-sm);
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .top-rank.r1 { background: linear-gradient(135deg, #ffd700, #ffb700); color: #000; }
+        .top-rank.r2 { background: linear-gradient(135deg, #c0c0c0, #a0a0a0); color: #000; }
+        .top-rank.r3 { background: linear-gradient(135deg, #cd7f32, #b87333); color: #fff; }
+        .top-rank.r4 { background: var(--bg-tertiary); color: var(--text-tertiary); }
+
+        .top-info { flex: 1; min-width: 0; }
+
+        .top-hook {
+            font-size: var(--font-sm);
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: var(--space-xs);
+            color: var(--text-primary);
+        }
+
+        .top-meta {
+            font-size: var(--font-xs);
+            color: var(--text-tertiary);
+        }
+
+        .top-meta span {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .top-views {
+            font-size: var(--font-lg);
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        /* ========== FAVORITES PAGE ========== */
+        .fav-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-md) var(--space-lg);
+            background: var(--purple-soft);
+            border-radius: var(--radius-full);
+            font-size: var(--font-base);
+            font-weight: 700;
+            color: var(--purple);
+            margin-top: var(--space-md);
+        }
+
+        /* ========== TABS - Home indicator optimized ========== */
+        .tabs {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: calc(var(--tab-h) + var(--safe-bottom));
+            padding-bottom: var(--safe-bottom);
+            padding-left: var(--safe-left);
+            padding-right: var(--safe-right);
+            background: rgba(232,244,252,0.94);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border-top: 1px solid rgba(255,255,255,0.8);
+            display: flex;
+            z-index: 100;
+        }
+
+        .tab {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-xs);
+            background: none;
+            border: none;
+            cursor: pointer;
+            /* Large touch target */
+            min-height: var(--tab-h);
+            transition: all var(--duration-fast) var(--ease-smooth);
+        }
+
+        .tab-icon {
+            font-size: 30px;
+            transition: transform var(--duration-fast) var(--ease-spring);
+        }
+
+        .tab-lbl {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            transition: color var(--duration-fast) var(--ease-smooth);
+        }
+
+        .tab.on .tab-icon { transform: scale(1.12); }
+        .tab.on .tab-lbl { color: var(--accent); }
+        .tab:active .tab-icon { transform: scale(0.88); }
+
+        /* ========== MODALS - Sheet style with safe areas ========== */
+        .modal-bg {
+            position: fixed;
+            inset: 0;
+            background: rgba(26,58,74,0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--duration-normal) var(--ease-smooth);
+        }
+
+        .modal-bg.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-elevated);
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: var(--space-md) var(--space-lg) calc(var(--safe-bottom) + var(--space-lg));
+            padding-left: calc(var(--safe-left) + var(--space-lg));
+            padding-right: calc(var(--safe-right) + var(--space-lg));
+            transform: translateY(100%);
+            transition: transform var(--duration-slow) var(--ease-spring);
+            box-shadow: 0 -12px 48px rgba(0,0,0,0.15);
+        }
+
+        .modal-bg.open .modal { transform: translateY(0); }
+
+        .modal-bar {
+            width: 44px;
+            height: 5px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            margin: 0 auto var(--space-lg);
+        }
+
+        .modal-hdr {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+        }
+
+        .modal-title {
+            font-size: var(--font-xl);
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            color: var(--text-primary);
+        }
+
+        .modal-x {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-secondary);
+            border: none;
+            border-radius: 50%;
+            font-size: 20px;
+            color: var(--text-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--duration-fast) var(--ease-spring);
+        }
+
+        .modal-x:active { transform: scale(0.88); }
+
+        /* Form Fields */
+        .field { margin-bottom: var(--space-lg); }
+
+        .field-lbl {
+            display: block;
+            font-size: var(--font-sm);
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .field-input {
+            width: 100%;
+            padding: var(--space-md);
+            min-height: var(--touch-comfortable);
+            background: var(--bg-secondary);
+            border: 2px solid transparent;
+            border-radius: var(--radius-md);
+            font-size: var(--font-base);
+            color: var(--text-primary);
+            font-family: inherit;
+            transition: all var(--duration-fast) var(--ease-smooth);
+        }
+
+        .field-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: var(--bg-elevated);
+        }
+
+        .field-input::placeholder { color: var(--text-quaternary); }
+
+        textarea.field-input {
+            min-height: 100px;
+            resize: none;
+            line-height: 1.5;
+        }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-sm);
+        }
+
+        /* Tags */
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-sm);
+        }
+
+        .tag {
+            padding: var(--space-md) var(--space-md);
+            min-height: var(--touch-min);
+            background: var(--bg-secondary);
+            border: 2px solid transparent;
+            border-radius: var(--radius-full);
+            font-size: var(--font-sm);
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-family: inherit;
+            cursor: pointer;
+            transition: all var(--duration-fast) var(--ease-spring);
+        }
+
+        .tag.on {
+            background: var(--accent-soft);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .tag:active { transform: scale(0.94); }
+
+        /* Custom Format Input */
+        .custom-format-row {
+            display: flex;
+            gap: var(--space-sm);
+            margin-top: var(--space-md);
+        }
+
+        .custom-format-input {
+            flex: 1;
+            padding: var(--space-md);
+            min-height: var(--touch-min);
+            background: var(--bg-secondary);
+            border: 2px solid transparent;
+            border-radius: var(--radius-full);
+            font-size: var(--font-sm);
+            color: var(--text-primary);
+            font-family: inherit;
+            transition: all var(--duration-fast) var(--ease-smooth);
+        }
+
+        .custom-format-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: var(--bg-elevated);
+        }
+
+        .custom-format-input::placeholder { color: var(--text-quaternary); }
+
+        .custom-format-btn {
+            padding: var(--space-md) var(--space-lg);
+            min-height: var(--touch-min);
+            background: var(--accent);
+            border: none;
+            border-radius: var(--radius-full);
+            font-size: var(--font-sm);
+            font-weight: 700;
+            color: #fff;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all var(--duration-fast) var(--ease-spring);
+        }
+
+        .custom-format-btn:active { transform: scale(0.94); }
+
+        /* Favorite Toggle */
+        .fav-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-lg);
+            min-height: 72px;
+            background: var(--bg-secondary);
+            border: 2px solid transparent;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            margin-bottom: var(--space-lg);
+            transition: all var(--duration-fast) var(--ease-smooth);
+        }
+
+        .fav-toggle.on {
+            background: var(--yellow-soft);
+            border-color: rgba(255,204,0,0.4);
+        }
+
+        .fav-toggle:active { transform: scale(0.98); }
+
+        .fav-toggle-left {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .fav-toggle-icon { font-size: 32px; }
+
+        .fav-toggle-text {
+            font-size: var(--font-lg);
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        .fav-toggle.on .fav-toggle-text { color: #e6a800; }
+
+        .fav-toggle-sub {
+            font-size: var(--font-sm);
+            color: var(--text-tertiary);
+            margin-top: 2px;
+        }
+
+        .fav-toggle-sw {
+            width: 58px;
+            height: 34px;
+            background: var(--bg-tertiary);
+            border-radius: 17px;
+            position: relative;
+            transition: background var(--duration-normal) var(--ease-smooth);
+        }
+
+        .fav-toggle.on .fav-toggle-sw { background: var(--yellow); }
+
+        .fav-toggle-sw::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 28px;
+            height: 28px;
+            background: #fff;
+            border-radius: 50%;
+            transition: all var(--duration-normal) var(--ease-spring);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .fav-toggle.on .fav-toggle-sw::after { left: 27px; }
+
+        /* Buttons */
+        .btn-save {
+            width: 100%;
+            padding: var(--space-lg);
+            min-height: 60px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            border: none;
+            border-radius: var(--radius-xl);
+            font-size: var(--font-lg);
+            font-weight: 700;
+            color: #fff;
+            font-family: inherit;
+            cursor: pointer;
+            margin-top: var(--space-sm);
+            box-shadow: 0 6px 28px var(--accent-glow);
+            transition: all var(--duration-fast) var(--ease-spring);
+        }
+
+        .btn-save:active { transform: scale(0.97); }
+
+        .btn-cancel {
+            width: 100%;
+            padding: var(--space-md);
+            min-height: var(--touch-comfortable);
+            background: none;
+            border: none;
+            font-size: var(--font-base);
+            font-weight: 600;
+            color: var(--text-tertiary);
+            font-family: inherit;
+            cursor: pointer;
+            margin-top: var(--space-sm);
+        }
+
+        /* Settings */
+        .s-grp {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: var(--space-md);
+        }
+
+        .s-row {
+            padding: var(--space-md) var(--space-lg);
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--bg-tertiary);
+        }
+
+        .s-row:last-child { border-bottom: none; }
+
+        .s-lbl {
+            font-size: var(--font-base);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            color: var(--text-primary);
+        }
+
+        .s-btn {
+            padding: var(--space-sm) var(--space-lg);
+            min-height: var(--touch-min);
+            background: var(--bg-elevated);
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-sm);
+            font-weight: 700;
+            color: var(--accent);
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 2px 10px var(--glass-shadow);
+            transition: all var(--duration-fast) var(--ease-spring);
+        }
+
+        .s-btn:active { transform: scale(0.94); }
+        .s-btn.red { color: var(--red); }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: calc(var(--tab-h) + var(--safe-bottom) + var(--space-lg));
+            left: 50%;
+            transform: translateX(-50%) translateY(40px);
+            background: var(--text-primary);
+            padding: var(--space-md) var(--space-lg);
+            border-radius: var(--radius-full);
+            font-size: var(--font-base);
+            font-weight: 700;
+            color: #fff;
+            z-index: 300;
+            opacity: 0;
+            pointer-events: none;
+            transition: all var(--duration-slow) var(--ease-spring);
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            box-shadow: 0 8px 36px rgba(0,0,0,0.2);
+        }
+
+        .toast.on {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+            pointer-events: all;
+        }
+
+        .toast-undo {
+            padding: var(--space-sm) var(--space-md);
+            min-height: 36px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: var(--radius-full);
+            font-size: var(--font-sm);
+            font-weight: 700;
+            color: #fff;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        /* ========== ANIMATIONS - 120Hz ProMotion optimized ========== */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .anim { 
+            animation: fadeUp var(--duration-slow) var(--ease-out) forwards; 
+        }
+        .anim-1 { animation-delay: 0.06s; opacity: 0; }
+        .anim-2 { animation-delay: 0.12s; opacity: 0; }
+        .anim-3 { animation-delay: 0.18s; opacity: 0; }
+
+        /* ========== COMPETITOR STYLES ========== */
+        .comp-multiplier-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: var(--space-sm) var(--space-md);
+            background: var(--orange-soft);
+            color: var(--orange);
+            border-radius: var(--radius-full);
+            font-weight: 800;
+            font-size: var(--font-base);
+        }
+
+        .comp-multiplier-badge.high {
+            background: var(--green-soft);
+            color: var(--green);
+        }
+
+        .comp-account-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-xs);
+            padding: var(--space-xs) var(--space-md);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-full);
+            font-size: var(--font-sm);
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        /* ========== LANDSCAPE SUPPORT ========== */
+        @media (orientation: landscape) {
+            .wrap {
+                max-width: 680px;
+            }
+
+            .stats {
+                max-width: 480px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .modal {
+                max-width: 540px;
+                left: 50%;
+                transform: translateX(-50%) translateY(100%);
+                border-radius: var(--radius-xl);
+                margin-bottom: var(--space-lg);
+            }
+
+            .modal-bg.open .modal {
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- HOME -->
+        <div class="page active" id="p-home">
+            <header class="hdr">
+                <h1>Reels</h1>
+                <div class="hdr-actions">
+                    <button class="hdr-btn" onclick="haptic();openSettings()">⚙️</button>
+                </div>
+            </header>
+
+            <div class="wrap">
+                <div class="stats anim">
+                    <div class="stat">
+                        <div class="stat-val blue" id="s-total">0</div>
+                        <div class="stat-lbl">Всего</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-val green" id="s-week">0</div>
+                        <div class="stat-lbl">Неделя</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-val purple" id="s-fav">0</div>
+                        <div class="stat-lbl">Избранное</div>
+                    </div>
+                </div>
+
+                <button class="add-btn anim anim-1" onclick="haptic();openAdd()">
+                    <span>＋</span> Добавить анализ
+                </button>
+
+                <div class="filters-section anim anim-2">
+                    <div class="filters-row">
+                        <button class="filter-chip active" data-filter="all" onclick="setFilter('all', this)">
+                            <span class="icon">📊</span> Все
+                        </button>
+                        <button class="filter-chip" data-filter="views" onclick="setFilter('views', this)">
+                            <span class="icon">👀</span> По просмотрам
+                        </button>
+                        <button class="filter-chip" data-filter="shares" onclick="setFilter('shares', this)">
+                            <span class="icon">🔄</span> По репостам
+                        </button>
+                        <button class="filter-chip" data-filter="comments" onclick="setFilter('comments', this)">
+                            <span class="icon">💬</span> По комментариям
+                        </button>
+                    </div>
+                </div>
+
+                <div class="view-toggle anim anim-2">
+                    <button class="view-btn active" data-view="cards" onclick="setView('cards')">
+                        <span>🗂</span> Карточки
+                    </button>
+                    <button class="view-btn" data-view="table" onclick="setView('table')">
+                        <span>📋</span> Таблица
+                    </button>
+                </div>
+
+                <div class="anim anim-3">
+                    <div class="sec-hdr">
+                        <h2 class="sec-title">Мои анализы</h2>
+                        <button class="sec-btn" onclick="haptic();exportCSV()">Экспорт →</button>
+                    </div>
+                    
+                    <div class="cards" id="cards"></div>
+                    
+                    <div class="table-container" id="table-container">
+                        <div class="table-scroll-indicator" id="table-scroll-indicator">→ Прокрути</div>
+                        <div class="table-scroll-wrapper" id="table-scroll-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Дата</th>
+                                        <th class="sortable" onclick="sortTable('hook')">Хук</th>
+                                        <th>Формат</th>
+                                        <th class="sortable" onclick="sortTable('views')">Просмотры</th>
+                                        <th class="sortable" onclick="sortTable('shares')">Репосты</th>
+                                        <th class="sortable" onclick="sortTable('comments')">Комм.</th>
+                                        <th>⭐</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ANALYTICS -->
+        <div class="page" id="p-analytics">
+            <div class="wrap">
+                <div class="page-hdr">
+                    <h1>📊 Аналитика</h1>
+                    <p>Твои паттерны</p>
+                </div>
+                <div class="a-cards">
+                    <div class="a-card anim">
+                        <div class="a-head">
+                            <div class="a-title">📅 По дням</div>
+                            <div class="a-val" id="a-total">0</div>
+                        </div>
+                        <div class="chart" id="chart"></div>
+                    </div>
+                    <div class="a-card anim anim-1">
+                        <div class="a-head">
+                            <div class="a-title">📈 Средние</div>
+                        </div>
+                        <div class="avg-grid">
+                            <div class="avg-card">
+                                <div class="avg-icon">👀</div>
+                                <div class="avg-val blue" id="avg-v">0</div>
+                                <div class="avg-lbl">Views</div>
+                            </div>
+                            <div class="avg-card">
+                                <div class="avg-icon">🔄</div>
+                                <div class="avg-val purple" id="avg-s">0</div>
+                                <div class="avg-lbl">Shares</div>
+                            </div>
+                            <div class="avg-card">
+                                <div class="avg-icon">💬</div>
+                                <div class="avg-val green" id="avg-c">0</div>
+                                <div class="avg-lbl">Comments</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="a-card anim anim-2">
+                        <div class="a-head">
+                            <div class="a-title">🎬 Форматы</div>
+                        </div>
+                        <div class="fmt-list" id="fmt-list"></div>
+                    </div>
+                    <div class="a-card anim anim-3">
+                        <div class="a-head">
+                            <div class="a-title">🏆 Топ</div>
+                        </div>
+                        <div class="top-list" id="top-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAVORITES -->
+        <div class="page" id="p-fav">
+            <div class="wrap">
+                <div class="page-hdr">
+                    <h1>⭐ Избранное</h1>
+                    <p>Для изучения</p>
+                    <div class="fav-badge">
+                        <span>⭐</span>
+                        <span id="fav-badge">0</span>
+                    </div>
+                </div>
+                <div class="cards" id="fav-cards"></div>
+            </div>
+        </div>
+
+        <!-- COMPETITORS -->
+        <div class="page" id="p-competitors">
+            <div class="wrap">
+                <div class="page-hdr">
+                    <h1>🏆 Конкуренты</h1>
+                    <p>Ролики-победители x5-x10</p>
+                    <div class="fav-badge" style="background: var(--orange-soft); color: var(--orange);">
+                        <span>🔥</span>
+                        <span id="comp-badge">0</span>
+                    </div>
+                </div>
+
+                <button class="add-btn anim" onclick="haptic();openCompetitorAdd()" style="background: linear-gradient(135deg, var(--orange) 0%, #ffb347 100%); box-shadow: 0 8px 32px rgba(255,149,0,0.25);">
+                    <span>＋</span> Добавить ролик конкурента
+                </button>
+
+                <div class="filters-section anim anim-1">
+                    <div class="filters-row">
+                        <button class="filter-chip active" data-filter="all" onclick="setCompetitorFilter('all', this)">
+                            <span class="icon">📊</span> Все
+                        </button>
+                        <button class="filter-chip" data-filter="views" onclick="setCompetitorFilter('views', this)">
+                            <span class="icon">👀</span> По просмотрам
+                        </button>
+                        <button class="filter-chip" data-filter="shares" onclick="setCompetitorFilter('shares', this)">
+                            <span class="icon">🔄</span> По репостам
+                        </button>
+                        <button class="filter-chip" data-filter="comments" onclick="setCompetitorFilter('comments', this)">
+                            <span class="icon">💬</span> По комментариям
+                        </button>
+                    </div>
+                </div>
+
+                <div class="cards" id="comp-cards"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <nav class="tabs">
+        <button class="tab on" data-p="home" onclick="goTab('home')">
+            <span class="tab-icon">🏠</span>
+            <span class="tab-lbl">Главная</span>
+        </button>
+        <button class="tab" data-p="analytics" onclick="goTab('analytics')">
+            <span class="tab-icon">📊</span>
+            <span class="tab-lbl">Аналитика</span>
+        </button>
+        <button class="tab" data-p="competitors" onclick="goTab('competitors')">
+            <span class="tab-icon">🏆</span>
+            <span class="tab-lbl">Конкуренты</span>
+        </button>
+        <button class="tab" data-p="fav" onclick="goTab('fav')">
+            <span class="tab-icon">⭐</span>
+            <span class="tab-lbl">Избранное</span>
+        </button>
+    </nav>
+
+    <!-- Add Modal -->
+    <div class="modal-bg" id="m-add">
+        <div class="modal">
+            <div class="modal-bar"></div>
+            <div class="modal-hdr">
+                <h3 class="modal-title" id="m-title">Новый анализ</h3>
+                <button class="modal-x" onclick="haptic();closeAdd()">✕</button>
+            </div>
+            <form id="form" onsubmit="return false">
+                <input type="hidden" id="edit-id">
+
+                <div class="fav-toggle" id="fav-toggle" onclick="toggleFavForm()">
+                    <div class="fav-toggle-left">
+                        <span class="fav-toggle-icon">⭐</span>
+                        <div>
+                            <div class="fav-toggle-text">В избранное</div>
+                            <div class="fav-toggle-sub">Сохранить для изучения</div>
+                        </div>
+                    </div>
+                    <div class="fav-toggle-sw"></div>
+                </div>
+
+                <div class="field">
+                    <label class="field-lbl">Хук *</label>
+                    <textarea class="field-input" id="f-hook" placeholder="Что зацепило в первые секунды?"></textarea>
+                </div>
+                <div class="field">
+                    <label class="field-lbl">Ссылка</label>
+                    <input type="url" class="field-input" id="f-link" placeholder="https://instagram.com/reel/...">
+                </div>
+                <div class="field">
+                    <label class="field-lbl">Статистика (1м = 1млн, 1к = 1000)</label>
+                    <div class="field-row">
+                        <input type="text" class="field-input" id="f-views" placeholder="Views">
+                        <input type="text" class="field-input" id="f-shares" placeholder="Shares">
+                        <input type="text" class="field-input" id="f-comments" placeholder="Comments">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="field-lbl">Формат</label>
+                    <div class="tags">
+                        <button type="button" class="tag" data-f="Голова без B-Roll" onclick="pickTag(this)">🗣 Голова без B-Roll</button>
+                        <button type="button" class="tag" data-f="Голова + B-Roll" onclick="pickTag(this)">🎬 Голова + B-Roll</button>
+                        <button type="button" class="tag" data-f="Сторителлинг" onclick="pickTag(this)">📖 Сторителлинг</button>
+                        <button type="button" class="tag" data-f="FaceTime" onclick="pickTag(this)">📱 FaceTime</button>
+                        <button type="button" class="tag" data-f="Киношно" onclick="pickTag(this)">🎥 Киношно</button>
+                    </div>
+                    <div class="custom-format-row">
+                        <input type="text" class="custom-format-input" id="f-custom-format" placeholder="Свой формат...">
+                        <button type="button" class="custom-format-btn" onclick="addCustomFormat()">Добавить</button>
+                    </div>
+                    <input type="hidden" id="f-format">
+                </div>
+                <div class="field">
+                    <label class="field-lbl">Почему сработало?</label>
+                    <textarea class="field-input" id="f-insight" placeholder="Твои мысли..."></textarea>
+                </div>
+                <button type="button" class="btn-save" onclick="save()">Сохранить</button>
+                <button type="button" class="btn-cancel" onclick="closeAdd()">Отмена</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-bg" id="m-settings">
+        <div class="modal">
+            <div class="modal-bar"></div>
+            <div class="modal-hdr">
+                <h3 class="modal-title">Настройки</h3>
+                <button class="modal-x" onclick="haptic();closeSettings()">✕</button>
+            </div>
+            <div class="s-grp">
+                <div class="s-row">
+                    <span class="s-lbl">📤 CSV</span>
+                    <button class="s-btn" onclick="haptic();exportCSV()">Скачать</button>
+                </div>
+                <div class="s-row">
+                    <span class="s-lbl">📥 Импорт</span>
+                    <button class="s-btn" onclick="$('imp-csv').click()">Загрузить</button>
+                    <input type="file" id="imp-csv" accept=".csv" hidden onchange="importCSV(this)">
+                </div>
+            </div>
+            <div class="s-grp">
+                <div class="s-row">
+                    <span class="s-lbl">💾 Backup</span>
+                    <button class="s-btn" onclick="haptic();exportJSON()">JSON</button>
+                </div>
+                <div class="s-row">
+                    <span class="s-lbl">📂 Restore</span>
+                    <button class="s-btn" onclick="$('imp-json').click()">Загрузить</button>
+                    <input type="file" id="imp-json" accept=".json" hidden onchange="importJSON(this)">
+                </div>
+            </div>
+            <div class="s-grp">
+                <div class="s-row">
+                    <span class="s-lbl">🗑 Очистить</span>
+                    <button class="s-btn red" onclick="haptic();clearAll()">Удалить всё</button>
+                </div>
+            </div>
+            <button class="btn-cancel" onclick="closeSettings()">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Competitor Modal -->
+    <div class="modal-bg" id="m-competitor">
+        <div class="modal">
+            <div class="modal-bar"></div>
+            <div class="modal-hdr">
+                <h3 class="modal-title" id="m-comp-title">Ролик конкурента</h3>
+                <button class="modal-x" onclick="haptic();closeCompetitorAdd()">✕</button>
+            </div>
+            <form id="comp-form" onsubmit="return false">
+                <input type="hidden" id="comp-edit-id">
+
+                <div class="field">
+                    <label class="field-lbl">Ссылка на ролик *</label>
+                    <input type="url" class="field-input" id="comp-link" placeholder="https://instagram.com/reel/...">
+                </div>
+
+                <div class="field">
+                    <label class="field-lbl">Статистика (1м = 1млн, 1к = 1000)</label>
+                    <div class="field-row">
+                        <input type="text" class="field-input" id="comp-views" placeholder="Views">
+                        <input type="text" class="field-input" id="comp-shares" placeholder="Shares">
+                        <input type="text" class="field-input" id="comp-comments" placeholder="Comments">
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="field-lbl">Формат</label>
+                    <div class="tags">
+                        <button type="button" class="tag" data-f="Голова без B-Roll" onclick="pickCompTag(this)">🗣 Голова без B-Roll</button>
+                        <button type="button" class="tag" data-f="Голова + B-Roll" onclick="pickCompTag(this)">🎬 Голова + B-Roll</button>
+                        <button type="button" class="tag" data-f="Сторителлинг" onclick="pickCompTag(this)">📖 Сторителлинг</button>
+                        <button type="button" class="tag" data-f="FaceTime" onclick="pickCompTag(this)">📱 FaceTime</button>
+                        <button type="button" class="tag" data-f="Киношно" onclick="pickCompTag(this)">🎥 Киношно</button>
+                    </div>
+                    <div class="custom-format-row">
+                        <input type="text" class="custom-format-input" id="comp-custom-format" placeholder="Свой формат...">
+                        <button type="button" class="custom-format-btn" onclick="addCompCustomFormat()">Добавить</button>
+                    </div>
+                    <input type="hidden" id="comp-format">
+                </div>
+
+                <div class="field">
+                    <label class="field-lbl">Что зацепило? *</label>
+                    <textarea class="field-input" id="comp-hook" placeholder="Что привлекло внимание в этом ролике?"></textarea>
+                </div>
+
+                <div class="field">
+                    <label class="field-lbl">Как адаптировать под себя?</label>
+                    <textarea class="field-input" id="comp-adaptation" placeholder="Идеи как использовать этот подход в своем контенте..."></textarea>
+                </div>
+
+                <div class="field">
+                    <label class="field-lbl">Дополнительные инсайты</label>
+                    <textarea class="field-input" id="comp-insights" placeholder="Любые другие наблюдения..."></textarea>
+                </div>
+
+                <button type="button" class="btn-save" onclick="saveCompetitor()" style="background: linear-gradient(135deg, var(--orange) 0%, #ffb347 100%); box-shadow: 0 6px 28px rgba(255,149,0,0.25);">Сохранить</button>
+                <button type="button" class="btn-cancel" onclick="closeCompetitorAdd()">Отмена</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <span id="toast-msg">OK</span>
+        <button class="toast-undo" id="toast-undo" onclick="undo()">Вернуть</button>
+    </div>
+
+    <script>
+        const $ = id => document.getElementById(id);
+        let data = [];
+        let competitorData = [];
+        let deleted = null;
+        let deletedCompetitor = null;
+        let toastTm = null;
+        let curTab = 'home';
+        let formFav = false;
+        let currentFilter = 'all';
+        let currentCompetitorFilter = 'all';
+        let currentView = 'cards';
+        let tableSortField = null;
+        let tableSortAsc = true;
+
+        try { data = JSON.parse(localStorage.getItem('reels_data')) || []; } catch { data = []; }
+        try { competitorData = JSON.parse(localStorage.getItem('competitor_data')) || []; } catch { competitorData = []; }
+
+        const formatIcons = {
+            'Голова без B-Roll': '🗣', 'Голова + B-Roll': '🎬', 'Сторителлинг': '📖',
+            'FaceTime': '📱', 'Киношно': '🎥', 'Голова': '🗣', 'Сплит': '📱',
+            'B-roll': '🎥', 'Диалог': '🎭', 'Туториал': '📚'
+        };
+
+        // Enhanced haptic feedback for iPhone
+        function haptic(t = 'light') {
+            if ('vibrate' in navigator) {
+                const patterns = { light: 10, medium: 20, success: [10, 30, 10], error: [30, 20, 30] };
+                navigator.vibrate(patterns[t] || 10);
+            }
+        }
+
+        function parseNum(s) {
+            if (!s) return 0;
+            s = String(s).toLowerCase().replace(/\s/g, '').replace(/,/g, '.');
+            if (s.includes('м') || s.includes('m')) return Math.round(parseFloat(s.replace(/[мm]/g, '')) * 1e6);
+            if (s.includes('к') || s.includes('k')) return Math.round(parseFloat(s.replace(/[кk]/g, '')) * 1e3);
+            return parseInt(s.replace(/\D/g, '')) || 0;
+        }
+
+        function fmtNum(n) {
+            if (!n) return '0';
+            n = +n;
+            if (n >= 1e6) return (n / 1e6).toFixed(1).replace(/\.0$/, '') + 'м';
+            if (n >= 1e3) return (n / 1e3).toFixed(1).replace(/\.0$/, '') + 'к';
+            return String(n);
+        }
+
+        function fmtDate(s) {
+            if (!s) return '';
+            const d = new Date(s);
+            const m = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+            return `${d.getDate()} ${m[d.getMonth()]}`;
+        }
+
+        function fmtDateFull(s) {
+            if (!s) return '';
+            const d = new Date(s);
+            return `${d.getDate().toString().padStart(2, '0')}.${(d.getMonth() + 1).toString().padStart(2, '0')}.${d.getFullYear()}`;
+        }
+
+        function fmtFile() {
+            const d = new Date();
+            return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
+        }
+
+        function parseDate(s) {
+            if (!s) return null;
+            const p = s.split('.');
+            if (p.length === 3) return `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
+            if (s.includes('-')) return s;
+            return null;
+        }
+
+        function esc(s) { return s ? String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') : ''; }
+        function escCSV(s) { return s ? String(s).replace(/"/g, '""') : ''; }
+        function download(c, n, t) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([c], { type: t })); a.download = n; a.click(); }
+        function persist() { localStorage.setItem('reels_data', JSON.stringify(data)); }
+        function getFormatIcon(f) { return formatIcons[f] || '🎬'; }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateStats();
+            renderCards();
+            initTableScrollIndicator();
+        });
+
+        // Table scroll indicator
+        function initTableScrollIndicator() {
+            const scrollWrapper = $('table-scroll-wrapper');
+            const indicator = $('table-scroll-indicator');
+
+            if (!scrollWrapper || !indicator) return;
+
+            let scrollTimeout;
+
+            scrollWrapper.addEventListener('scroll', () => {
+                const scrollLeft = scrollWrapper.scrollLeft;
+                const maxScroll = scrollWrapper.scrollWidth - scrollWrapper.clientWidth;
+
+                // Show indicator when not scrolled to the end
+                if (scrollLeft < maxScroll - 10) {
+                    indicator.classList.add('visible');
+                } else {
+                    indicator.classList.remove('visible');
+                }
+
+                // Hide indicator after scrolling stops
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    indicator.classList.remove('visible');
+                }, 1500);
+            });
+
+            // Show indicator initially if table is scrollable
+            setTimeout(() => {
+                const maxScroll = scrollWrapper.scrollWidth - scrollWrapper.clientWidth;
+                if (maxScroll > 0) {
+                    indicator.classList.add('visible');
+                    setTimeout(() => {
+                        indicator.classList.remove('visible');
+                    }, 2000);
+                }
+            }, 500);
+        }
+
+        function goTab(t) {
+            haptic();
+            curTab = t;
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(b => b.classList.remove('on'));
+            $('p-' + t).classList.add('active');
+            document.querySelector(`[data-p="${t}"]`).classList.add('on');
+            if (t === 'analytics') renderAnalytics();
+            if (t === 'fav') renderFavCards();
+            if (t === 'competitors') { updateCompetitorBadge(); renderCompetitorCards(); }
+        }
+
+        function updateStats() {
+            $('s-total').textContent = data.length;
+            $('s-week').textContent = data.filter(d => new Date(d.date) >= new Date(Date.now() - 7 * 864e5)).length;
+            $('s-fav').textContent = data.filter(d => d.favorite).length;
+        }
+
+        function setFilter(filter, btn) {
+            haptic();
+            currentFilter = filter;
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            renderCards();
+            renderTable();
+        }
+
+        function getFilteredData() {
+            let filtered = [...data];
+            switch (currentFilter) {
+                case 'views': filtered.sort((a, b) => (b.views || 0) - (a.views || 0)); break;
+                case 'shares': filtered.sort((a, b) => (b.shares || 0) - (a.shares || 0)); break;
+                case 'comments': filtered.sort((a, b) => (b.comments || 0) - (a.comments || 0)); break;
+                default: filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+            }
+            return filtered;
+        }
+
+        function setView(view) {
+            haptic();
+            currentView = view;
+            document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`[data-view="${view}"]`).classList.add('active');
+            if (view === 'cards') {
+                $('cards').classList.remove('hidden');
+                $('table-container').classList.remove('active');
+            } else {
+                $('cards').classList.add('hidden');
+                $('table-container').classList.add('active');
+                renderTable();
+                // Re-initialize scroll indicator when switching to table view
+                setTimeout(() => {
+                    const scrollWrapper = $('table-scroll-wrapper');
+                    const indicator = $('table-scroll-indicator');
+                    if (scrollWrapper && indicator) {
+                        const maxScroll = scrollWrapper.scrollWidth - scrollWrapper.clientWidth;
+                        if (maxScroll > 0) {
+                            indicator.classList.add('visible');
+                            setTimeout(() => {
+                                indicator.classList.remove('visible');
+                            }, 2000);
+                        }
+                    }
+                }, 100);
+            }
+        }
+
+        function renderCards() {
+            const el = $('cards');
+            const filtered = getFilteredData();
+            if (!filtered.length) {
+                el.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">Пока нет анализов</div><div class="empty-sub">Нажми кнопку выше</div></div>`;
+                return;
+            }
+            el.innerHTML = filtered.map((d, i) => `
+                <div class="card" style="animation:fadeUp .4s ease forwards;animation-delay:${i * 0.025}s;opacity:0">
+                    <div class="card-header">
+                        <div class="card-meta">
+                            <span class="card-date">${fmtDate(d.date)}</span>
+                            ${d.format ? `<span class="card-format">${getFormatIcon(d.format)} ${d.format}</span>` : ''}
+                        </div>
+                        <button class="fav-btn ${d.favorite ? 'on' : ''}" onclick="togFav('${d.id}')">
+                            <span class="star">${d.favorite ? '⭐' : '☆'}</span>
+                            <span>${d.favorite ? 'В избранном' : 'В избранное'}</span>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-hook">${esc(d.hook)}</div>
+                        ${d.insight ? `<div class="card-insight">${esc(d.insight)}</div>` : ''}
+                        <div class="card-stats">
+                            <div class="card-stat"><span class="card-stat-icon">👀</span><span class="card-stat-val blue">${fmtNum(d.views)}</span></div>
+                            <div class="card-stat"><span class="card-stat-icon">🔄</span><span class="card-stat-val purple">${fmtNum(d.shares)}</span></div>
+                            <div class="card-stat"><span class="card-stat-icon">💬</span><span class="card-stat-val green">${fmtNum(d.comments)}</span></div>
+                        </div>
+                        <div class="card-actions">
+                            ${d.link ? `<button class="card-btn primary" onclick="window.open('${esc(d.link)}','_blank')">Открыть</button>` : ''}
+                            <button class="card-btn" onclick="haptic();edit('${d.id}')">✏️ Изменить</button>
+                            <button class="card-btn danger" onclick="haptic('error');del('${d.id}')">🗑</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderTable() {
+            const tbody = $('table-body');
+            let filtered = getFilteredData();
+            if (tableSortField) {
+                filtered.sort((a, b) => {
+                    let valA = a[tableSortField] || 0, valB = b[tableSortField] || 0;
+                    if (typeof valA === 'string') return tableSortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                    return tableSortAsc ? valA - valB : valB - valA;
+                });
+            }
+            if (!filtered.length) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-tertiary)">Нет данных</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = filtered.map(d => `
+                <tr>
+                    <td>${fmtDate(d.date)}</td>
+                    <td><span class="table-hook">${esc(d.hook)}</span></td>
+                    <td>${d.format ? `<span class="table-format">${getFormatIcon(d.format)} ${d.format}</span>` : '—'}</td>
+                    <td><span class="table-stat blue">${fmtNum(d.views)}</span></td>
+                    <td><span class="table-stat purple">${fmtNum(d.shares)}</span></td>
+                    <td><span class="table-stat green">${fmtNum(d.comments)}</span></td>
+                    <td><span class="table-fav">${d.favorite ? '⭐' : '☆'}</span></td>
+                    <td><div class="table-actions">
+                        <button class="table-action-btn" onclick="haptic();edit('${d.id}')">✏️</button>
+                        <button class="table-action-btn danger" onclick="haptic('error');del('${d.id}')">🗑</button>
+                    </div></td>
+                </tr>
+            `).join('');
+        }
+
+        function sortTable(field) {
+            haptic();
+            tableSortAsc = tableSortField === field ? !tableSortAsc : false;
+            tableSortField = field;
+            document.querySelectorAll('.data-table th').forEach(th => th.classList.remove('sorted'));
+            event.target.classList.add('sorted');
+            renderTable();
+        }
+
+        function togFav(id) {
+            haptic('medium');
+            const d = data.find(x => x.id === id);
+            if (d) {
+                d.favorite = !d.favorite;
+                persist(); renderCards(); updateStats();
+                if (currentView === 'table') renderTable();
+                if (curTab === 'fav') renderFavCards();
+                toast(d.favorite ? '⭐ Добавлено в избранное!' : 'Убрано из избранного', false);
+            }
+        }
+
+        function renderFavCards() {
+            const favs = data.filter(d => d.favorite);
+            const pluralize = n => n === 1 ? 'ролик' : (n >= 2 && n <= 4 ? 'ролика' : 'роликов');
+            $('fav-badge').textContent = `${favs.length} ${pluralize(favs.length)}`;
+            const el = $('fav-cards');
+            if (!favs.length) {
+                el.innerHTML = `<div class="empty"><div class="empty-icon">⭐</div><div class="empty-text">Нет избранных</div><div class="empty-sub">Нажми звёздочку на карточке</div></div>`;
+                return;
+            }
+            el.innerHTML = favs.map((d, i) => `
+                <div class="card" style="animation:fadeUp .4s ease forwards;animation-delay:${i * 0.025}s;opacity:0">
+                    <div class="card-header">
+                        <div class="card-meta">
+                            <span class="card-date">${fmtDate(d.date)}</span>
+                            ${d.format ? `<span class="card-format">${getFormatIcon(d.format)} ${d.format}</span>` : ''}
+                        </div>
+                        <button class="fav-btn on" onclick="togFav('${d.id}')"><span class="star">⭐</span><span>Убрать</span></button>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-hook">${esc(d.hook)}</div>
+                        ${d.insight ? `<div class="card-insight">${esc(d.insight)}</div>` : ''}
+                        <div class="card-stats">
+                            <div class="card-stat"><span class="card-stat-icon">👀</span><span class="card-stat-val blue">${fmtNum(d.views)}</span></div>
+                            <div class="card-stat"><span class="card-stat-icon">🔄</span><span class="card-stat-val purple">${fmtNum(d.shares)}</span></div>
+                            <div class="card-stat"><span class="card-stat-icon">💬</span><span class="card-stat-val green">${fmtNum(d.comments)}</span></div>
+                        </div>
+                        <div class="card-actions">
+                            ${d.link ? `<button class="card-btn primary" onclick="window.open('${esc(d.link)}','_blank')">Открыть</button>` : ''}
+                            <button class="card-btn" onclick="haptic();edit('${d.id}')">✏️ Изменить</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderAnalytics() {
+            // Combine both datasets for analytics
+            const allData = [...data, ...competitorData];
+
+            $('a-total').textContent = allData.length;
+            const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+            const counts = [0, 0, 0, 0, 0, 0, 0];
+            allData.forEach(d => { const day = new Date(d.date).getDay(); counts[day === 0 ? 6 : day - 1]++; });
+            const maxC = Math.max(...counts, 1);
+            $('chart').innerHTML = days.map((d, i) => `<div class="chart-col"><div class="chart-bar-w"><div class="chart-bar" style="height:${Math.max(4, (counts[i] / maxC) * 100)}px"></div></div><span class="chart-lbl">${d}</span></div>`).join('');
+            if (allData.length) {
+                $('avg-v').textContent = fmtNum(Math.round(allData.reduce((s, d) => s + (d.views || 0), 0) / allData.length));
+                $('avg-s').textContent = fmtNum(Math.round(allData.reduce((s, d) => s + (d.shares || 0), 0) / allData.length));
+                $('avg-c').textContent = fmtNum(Math.round(allData.reduce((s, d) => s + (d.comments || 0), 0) / allData.length));
+            } else { $('avg-v').textContent = '0'; $('avg-s').textContent = '0'; $('avg-c').textContent = '0'; }
+            const formats = {};
+            allData.forEach(d => { if (d.format) formats[d.format] = (formats[d.format] || 0) + 1; });
+            const fList = Object.entries(formats).sort((a, b) => b[1] - a[1]).slice(0, 5);
+            const maxF = fList[0]?.[1] || 1;
+            $('fmt-list').innerHTML = fList.length ? fList.map(([n, c]) => `<div class="fmt-row"><div class="fmt-icon">${getFormatIcon(n)}</div><div class="fmt-info"><div class="fmt-name">${n}</div><div class="fmt-bar"><div class="fmt-bar-fill" style="width:${(c / maxF) * 100}%"></div></div></div><div class="fmt-cnt">${c}</div></div>`).join('') : '<div class="empty"><div class="empty-text" style="font-size:14px">Нет данных</div></div>';
+            const top = [...allData].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 5);
+            $('top-list').innerHTML = top.length ? top.map((d, i) => {
+                const isCompetitor = competitorData.some(c => c.id === d.id);
+                const onClick = isCompetitor ? `editCompetitor('${d.id}')` : `edit('${d.id}')`;
+                const badge = isCompetitor ? '<span style="font-size:10px;background:var(--orange-soft);color:var(--orange);padding:2px 8px;border-radius:10px;margin-left:4px;">🏆</span>' : '';
+                return `<div class="top-item" onclick="haptic();${onClick}"><div class="top-rank ${['r1', 'r2', 'r3', 'r4', 'r4'][i]}">${i + 1}</div><div class="top-info"><div class="top-hook">${esc(d.hook)}${badge}</div><div class="top-meta">${d.format || ''} · <span>${fmtNum(d.shares)}</span> репостов</div></div><div class="top-views">${fmtNum(d.views)}</div></div>`;
+            }).join('') : '<div class="empty"><div class="empty-text" style="font-size:14px">Нет данных</div></div>';
+        }
+
+        function openAdd() {
+            $('m-title').textContent = 'Новый анализ';
+            $('form').reset(); $('edit-id').value = ''; $('f-format').value = ''; $('f-custom-format').value = '';
+            formFav = false; $('fav-toggle').classList.remove('on');
+            document.querySelectorAll('.tag').forEach(t => t.classList.remove('on'));
+            $('m-add').classList.add('open');
+        }
+
+        function closeAdd() { $('m-add').classList.remove('open'); }
+        function toggleFavForm() { haptic('medium'); formFav = !formFav; $('fav-toggle').classList.toggle('on', formFav); }
+        function pickTag(btn) { haptic(); document.querySelectorAll('.tag').forEach(t => t.classList.remove('on')); btn.classList.add('on'); $('f-format').value = btn.dataset.f; $('f-custom-format').value = ''; }
+        function addCustomFormat() { const cf = $('f-custom-format').value.trim(); if (!cf) { haptic('error'); return; } haptic(); document.querySelectorAll('.tag').forEach(t => t.classList.remove('on')); $('f-format').value = cf; toast(`Формат "${cf}" выбран`, false); }
+
+        function save() {
+            const hook = $('f-hook').value.trim();
+            if (!hook) { haptic('error'); alert('Введи хук!'); return; }
+            const editId = $('edit-id').value, isEdit = editId !== '';
+            let format = $('f-format').value;
+            if (!format && $('f-custom-format').value.trim()) format = $('f-custom-format').value.trim();
+            const entry = {
+                id: isEdit ? editId : Date.now().toString(),
+                date: isEdit ? (data.find(d => d.id === editId)?.date || new Date().toISOString().split('T')[0]) : new Date().toISOString().split('T')[0],
+                hook, link: $('f-link').value.trim(),
+                views: parseNum($('f-views').value), shares: parseNum($('f-shares').value), comments: parseNum($('f-comments').value),
+                format, insight: $('f-insight').value.trim(), favorite: formFav
+            };
+            if (isEdit) { const i = data.findIndex(d => d.id === editId); if (i > -1) data[i] = entry; }
+            else { data.unshift(entry); }
+            persist(); closeAdd(); updateStats(); renderCards();
+            if (currentView === 'table') renderTable();
+            if (curTab === 'analytics') renderAnalytics();
+            if (curTab === 'fav') renderFavCards();
+            haptic('success');
+            toast(isEdit ? 'Сохранено ✓' : (formFav ? '⭐ Добавлено в избранное!' : 'Добавлено ✓'), false);
+        }
+
+        function edit(id) {
+            const d = data.find(x => x.id === id);
+            if (!d) return;
+            $('m-title').textContent = 'Редактировать';
+            $('edit-id').value = id; $('f-hook').value = d.hook; $('f-link').value = d.link || '';
+            $('f-views').value = d.views ? fmtNum(d.views) : ''; $('f-shares').value = d.shares ? fmtNum(d.shares) : ''; $('f-comments').value = d.comments ? fmtNum(d.comments) : '';
+            $('f-format').value = d.format || ''; $('f-insight').value = d.insight || ''; $('f-custom-format').value = '';
+            formFav = d.favorite || false; $('fav-toggle').classList.toggle('on', formFav);
+            const matchingTag = document.querySelector(`.tag[data-f="${d.format}"]`);
+            document.querySelectorAll('.tag').forEach(t => t.classList.remove('on'));
+            if (matchingTag) matchingTag.classList.add('on');
+            else if (d.format) $('f-custom-format').value = d.format;
+            $('m-add').classList.add('open');
+        }
+
+        function del(id) {
+            const i = data.findIndex(d => d.id === id);
+            if (i === -1) return;
+            deleted = data[i]; data.splice(i, 1);
+            persist(); updateStats(); renderCards();
+            if (currentView === 'table') renderTable();
+            if (curTab === 'fav') renderFavCards();
+            toast('Удалено', true);
+        }
+
+        function undo() {
+            if (deleted) {
+                data.unshift(deleted);
+                deleted = null;
+                persist();
+                updateStats();
+                renderCards();
+                if (currentView === 'table') renderTable();
+                haptic('success');
+                hideToast();
+            } else if (deletedCompetitor) {
+                undoCompetitor();
+            }
+        }
+        function openSettings() { $('m-settings').classList.add('open'); }
+        function closeSettings() { $('m-settings').classList.remove('open'); }
+
+        function exportCSV() {
+            if (!data.length) { toast('Нет данных', false); return; }
+            let csv = '\uFEFFДата,Хук,Формат,Просмотры,Репосты,Комментарии,Ссылка,Инсайт,Избранное\n';
+            data.forEach(d => { csv += `"${fmtDateFull(d.date)}","${escCSV(d.hook)}","${d.format || ''}",${d.views || 0},${d.shares || 0},${d.comments || 0},"${d.link || ''}","${escCSV(d.insight)}","${d.favorite ? 'Да' : 'Нет'}"\n`; });
+            download(csv, `Reels_${fmtFile()}.csv`, 'text/csv;charset=utf-8');
+            haptic('success'); toast('Экспорт готов ✓', false); closeSettings();
+        }
+
+        function importCSV(input) {
+            const file = input.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                const lines = e.target.result.split('\n').filter(l => l.trim()).slice(1);
+                const newData = lines.map(row => {
+                    const c = parseRow(row); if (c.length < 2) return null;
+                    return { id: Date.now().toString() + Math.random().toString(36).substr(2, 9), date: parseDate(c[0]) || new Date().toISOString().split('T')[0], hook: c[1] || '', format: c[2] || '', views: parseNum(c[3]), shares: parseNum(c[4]), comments: parseNum(c[5]), link: c[6] || '', insight: c[7] || '', favorite: c[8]?.toLowerCase().includes('да') };
+                }).filter(Boolean);
+                if (!newData.length) { haptic('error'); alert('Ошибка при импорте'); return; }
+                data = [...newData, ...data]; persist(); updateStats(); renderCards();
+                if (currentView === 'table') renderTable();
+                closeSettings(); haptic('success'); toast(`Импортировано ${newData.length} ✓`, false);
+            };
+            reader.readAsText(file); input.value = '';
+        }
+
+        function parseRow(row) { const r = []; let cur = '', inQ = false; for (const ch of row) { if (ch === '"') inQ = !inQ; else if ((ch === ',' || ch === ';') && !inQ) { r.push(cur.trim()); cur = ''; } else cur += ch; } r.push(cur.trim()); return r; }
+        function exportJSON() { download(JSON.stringify({ v: '13.0', data }, null, 2), `Reels_Backup_${fmtFile()}.json`, 'application/json'); haptic('success'); toast('Backup ✓', false); }
+
+        function importJSON(input) {
+            const file = input.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => { try { const imp = JSON.parse(e.target.result); if (imp.data) { data = imp.data; persist(); updateStats(); renderCards(); if (currentView === 'table') renderTable(); closeSettings(); haptic('success'); toast('Восстановлено ✓', false); } } catch { haptic('error'); alert('Ошибка при импорте'); } };
+            reader.readAsText(file); input.value = '';
+        }
+
+        function clearAll() { if (!confirm('Удалить ВСЕ данные?')) return; data = []; persist(); updateStats(); renderCards(); if (currentView === 'table') renderTable(); closeSettings(); toast('Очищено', false); }
+        function toast(msg, showUndo) { $('toast-msg').textContent = msg; $('toast-undo').style.display = showUndo ? 'inline-block' : 'none'; clearTimeout(toastTm); $('toast').classList.add('on'); toastTm = setTimeout(hideToast, showUndo ? 4000 : 2500); }
+        function hideToast() { $('toast').classList.remove('on'); }
+
+        // === COMPETITOR FUNCTIONS ===
+        function persistCompetitors() { localStorage.setItem('competitor_data', JSON.stringify(competitorData)); }
+
+        function updateCompetitorBadge() {
+            if ($('comp-badge')) $('comp-badge').textContent = `${competitorData.length} ${competitorData.length === 1 ? 'ролик' : (competitorData.length >= 2 && competitorData.length <= 4 ? 'ролика' : 'роликов')}`;
+        }
+
+        function openCompetitorAdd() {
+            $('m-comp-title').textContent = 'Ролик конкурента';
+            $('comp-form').reset();
+            $('comp-edit-id').value = '';
+            $('comp-format').value = '';
+            $('comp-custom-format').value = '';
+            document.querySelectorAll('#m-competitor .tag').forEach(t => t.classList.remove('on'));
+            $('m-competitor').classList.add('open');
+        }
+
+        function closeCompetitorAdd() { $('m-competitor').classList.remove('open'); }
+
+        function pickCompTag(btn) {
+            haptic();
+            document.querySelectorAll('#m-competitor .tag').forEach(t => t.classList.remove('on'));
+            btn.classList.add('on');
+            $('comp-format').value = btn.dataset.f;
+            $('comp-custom-format').value = '';
+        }
+
+        function addCompCustomFormat() {
+            const cf = $('comp-custom-format').value.trim();
+            if (!cf) { haptic('error'); return; }
+            haptic();
+            document.querySelectorAll('#m-competitor .tag').forEach(t => t.classList.remove('on'));
+            $('comp-format').value = cf;
+            toast(`Формат "${cf}" выбран`, false);
+        }
+
+        function saveCompetitor() {
+            const link = $('comp-link').value.trim();
+            const hook = $('comp-hook').value.trim();
+
+            if (!link) { haptic('error'); alert('Добавь ссылку на ролик!'); return; }
+            if (!hook) { haptic('error'); alert('Напиши что зацепило!'); return; }
+
+            const editId = $('comp-edit-id').value;
+            const isEdit = editId !== '';
+
+            let format = $('comp-format').value;
+            if (!format && $('comp-custom-format').value.trim()) format = $('comp-custom-format').value.trim();
+
+            const entry = {
+                id: isEdit ? editId : Date.now().toString(),
+                date: isEdit ? (competitorData.find(d => d.id === editId)?.date || new Date().toISOString().split('T')[0]) : new Date().toISOString().split('T')[0],
+                link,
+                views: parseNum($('comp-views').value),
+                shares: parseNum($('comp-shares').value),
+                comments: parseNum($('comp-comments').value),
+                format,
+                hook,
+                adaptation: $('comp-adaptation').value.trim(),
+                insights: $('comp-insights').value.trim()
+            };
+
+            if (isEdit) {
+                const i = competitorData.findIndex(d => d.id === editId);
+                if (i > -1) competitorData[i] = entry;
+            } else {
+                competitorData.unshift(entry);
+            }
+
+            persistCompetitors();
+            closeCompetitorAdd();
+            updateCompetitorBadge();
+            renderCompetitorCards();
+            haptic('success');
+            toast(isEdit ? 'Сохранено ✓' : '🏆 Ролик конкурента добавлен!', false);
+        }
+
+        function renderCompetitorCards() {
+            const el = $('comp-cards');
+            if (!competitorData.length) {
+                el.innerHTML = `<div class="empty"><div class="empty-icon">🏆</div><div class="empty-text">Пока нет роликов конкурентов</div><div class="empty-sub">Добавь ролики которые дали x5-x10 результат</div></div>`;
+                return;
+            }
+
+            const sorted = getFilteredCompetitorData();
+
+            el.innerHTML = sorted.map((d, i) => `
+                <div class="card" style="animation:fadeUp .4s ease forwards;animation-delay:${i * 0.025}s;opacity:0; border-left: 4px solid var(--orange);">
+                    <div class="card-header">
+                        <div class="card-meta">
+                            <span class="card-date">${fmtDate(d.date)}</span>
+                            ${d.format ? `<span class="card-format">${getFormatIcon(d.format)} ${d.format}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-hook">${esc(d.hook)}</div>
+                        ${d.adaptation ? `<div class="card-insight" style="background: var(--green-soft); border-left: 3px solid var(--green);"><strong style="color: var(--green);">💡 Как адаптировать:</strong><br>${esc(d.adaptation)}</div>` : ''}
+                        ${d.insights ? `<div class="card-insight"><strong>📝 Инсайты:</strong><br>${esc(d.insights)}</div>` : ''}
+                        <div class="card-stats">
+                            <div class="card-stat"><span class="card-stat-icon">👀</span><span class="card-stat-val blue">${fmtNum(d.views)}</span></div>
+                            <div class="card-stat"><span class="card-stat-icon">🔄</span><span class="card-stat-val purple">${fmtNum(d.shares)}</span></div>
+                            <div class="card-stat"><span class="card-stat-icon">💬</span><span class="card-stat-val green">${fmtNum(d.comments)}</span></div>
+                        </div>
+                        <div class="card-actions">
+                            <button class="card-btn primary" onclick="window.open('${esc(d.link)}','_blank')">Открыть</button>
+                            <button class="card-btn" onclick="haptic();editCompetitor('${d.id}')">✏️ Изменить</button>
+                            <button class="card-btn danger" onclick="haptic('error');deleteCompetitor('${d.id}')">🗑</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function editCompetitor(id) {
+            const d = competitorData.find(x => x.id === id);
+            if (!d) return;
+
+            $('m-comp-title').textContent = 'Редактировать';
+            $('comp-edit-id').value = id;
+            $('comp-link').value = d.link || '';
+            $('comp-views').value = d.views ? fmtNum(d.views) : '';
+            $('comp-shares').value = d.shares ? fmtNum(d.shares) : '';
+            $('comp-comments').value = d.comments ? fmtNum(d.comments) : '';
+            $('comp-format').value = d.format || '';
+            $('comp-hook').value = d.hook || '';
+            $('comp-adaptation').value = d.adaptation || '';
+            $('comp-insights').value = d.insights || '';
+            $('comp-custom-format').value = '';
+
+            const matchingTag = document.querySelector(`#m-competitor .tag[data-f="${d.format}"]`);
+            document.querySelectorAll('#m-competitor .tag').forEach(t => t.classList.remove('on'));
+            if (matchingTag) matchingTag.classList.add('on');
+            else if (d.format) $('comp-custom-format').value = d.format;
+
+            $('m-competitor').classList.add('open');
+        }
+
+        function deleteCompetitor(id) {
+            const i = competitorData.findIndex(d => d.id === id);
+            if (i === -1) return;
+            deletedCompetitor = competitorData[i];
+            competitorData.splice(i, 1);
+            persistCompetitors();
+            updateCompetitorBadge();
+            renderCompetitorCards();
+            toast('Удалено', true);
+        }
+
+        function undoCompetitor() {
+            if (!deletedCompetitor) return;
+            competitorData.unshift(deletedCompetitor);
+            deletedCompetitor = null;
+            persistCompetitors();
+            updateCompetitorBadge();
+            renderCompetitorCards();
+            haptic('success');
+            hideToast();
+        }
+
+        function setCompetitorFilter(filter, btn) {
+            haptic();
+            currentCompetitorFilter = filter;
+            document.querySelectorAll('#p-competitors .filter-chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            renderCompetitorCards();
+        }
+
+        function getFilteredCompetitorData() {
+            let filtered = [...competitorData];
+            switch (currentCompetitorFilter) {
+                case 'views': filtered.sort((a, b) => (b.views || 0) - (a.views || 0)); break;
+                case 'shares': filtered.sort((a, b) => (b.shares || 0) - (a.shares || 0)); break;
+                case 'comments': filtered.sort((a, b) => (b.comments || 0) - (a.comments || 0)); break;
+                default: filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+            }
+            return filtered;
+        }
+
+        document.querySelectorAll('.modal-bg').forEach(m => { m.addEventListener('click', e => { if (e.target === m) { haptic(); m.classList.remove('open'); } }); });
+    </script>
+</body>
+</html>
